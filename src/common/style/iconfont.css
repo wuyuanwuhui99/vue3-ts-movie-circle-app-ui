@@ -1,0 +1,24 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 87269 */
+  src: url('../font/iconfont.svg?t=1624079947675') format('svg'),
+       url('../font/iconfont.woff?t=1624079947675') format('woff'),
+       url('../font/iconfont.eot?t=1624079947675') format('eot'),
+       url('../font/iconfont.ttf?t=1624079947675') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 30px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-add:before {
+  content: "\e900";
+}
+
+.icon-search:before {
+    content: "\e901";
+    color: #1890ff;
+}
