@@ -2,9 +2,12 @@
 使用最新流行的vue3+typescript+hook搭建的电影圈webapp项目，嵌入到电影app中的电影圈小程序，持续开发中
 
 ================================界面预览================================
+
 ![手机端预览效果图7](./电影圈.jpg)
 ![手机端预览效果图7](./发说说.jpg)
+
 ================================界面预览================================
+
 后端接口项目和sql语句：https://github.com/wuyuanwuhui99/springboot-app-service
 
 flutter在线电影项目：https://github.com/wuyuanwuhui99/flutter-movie-app-ui
