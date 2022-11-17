@@ -13,6 +13,13 @@ export interface UserDataInterface {
     region:string
 }
 
+export interface ArticleInterface {
+    id: number,
+    content: string,
+    userId: string,
+    create_date: string,
+    update_date: string
+}
 
 
 

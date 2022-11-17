@@ -17,6 +17,9 @@ module.exports = {
             '^/service/movie': {
                 target: 'http://localhost:5000',
             },
+            '^/service/circle': {
+                target: 'http://localhost:8003',
+            },
             '/static': {
                 target: 'http://localhost:5001',
             }

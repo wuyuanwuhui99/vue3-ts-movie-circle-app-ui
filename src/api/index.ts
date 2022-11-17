@@ -1,3 +1,4 @@
 export default {
-    getUserData: "/service/toutiao/getUserData",//获取用户信息
+    getUserData: "/service/circle/getUserData",//获取用户信息
+    getCircleArticleList: "/service/circle/getCircleArticleList",//获取电影圈列表
 }
