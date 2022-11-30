@@ -7,35 +7,40 @@
             </div>
             <span class="iconfont icon-add"></span>
         </div>
-        <div class="article-wrapper" :key="'article-wrapper'+index" v-for="item,index in listData">
-            <div class="article-header">
-                <img class="avater" :src="`/static/user/avater/${item.userId}.jpg`">
-                <div class="username-wrapper">
-                    <span class="username">{{item.username}}</span>
-                    <span class="time">{{formateDate(item.createTime)}}</span>
-                </div>
-            </div>
-            <div class="content">{{item.content}}</div>
-            <ul class="footer-wrapper">
-                <li class="footer-item">
-                    <i class="iconfont icon-view"></i>
-                    <span class="count">{{item.viewCount}}</span>
+        <div id="article-view" ref="articleView" @scroll="useScroll">
+            <ul id="artice-list" ref="articeList">
+                <li class="article-wrapper" :key="'article-wrapper'+index" v-for="item,index in listData">
+                    <div class="article-header">
+                        <img class="avater" :src="`/static/user/avater/${item.userId}.jpg`">
+                        <div class="username-wrapper">
+                            <span class="username">{{item.username}}</span>
+                            <span class="time">{{formateDate(item.createTime)}}</span>
+                        </div>
+                    </div>
+                    <div class="content">{{item.content}}</div>=k
+                    <ul class="footer-wrapper">
+                        <li class="footer-item">
+                            <i class="iconfont icon-view"></i>
+                            <span class="count">{{item.viewCount}}</span>
+                        </li>
+                        <li class="footer-item">
+                            <i class="iconfont icon-comment"></i>
+                            <span class="count">{{item.commentCount}}</span>
+                        </li>
+                        <li class="footer-item">
+                            <i class="iconfont icon-like"></i>
+                            <span class="count">{{item.favoriteCount}}</span>
+                        </li>
+                    </ul>
                 </li>
-                <li class="footer-item">
-                    <i class="iconfont icon-comment"></i>
-                    <span class="count">{{item.commentCount}}</span>
-                </li>
-                <li class="footer-item">
-                    <i class="iconfont icon-like"></i>
-                    <span class="count">{{item.favoriteCount}}</span>
-                </li>
+                <div id="loading">{{totalRows === listData.length ? "已经到底了" : "正在加载..."}}</div>
             </ul>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-    import {defineComponent, ref, reactive} from 'vue';
+    import {defineComponent, ref, reactive,Ref} from 'vue';
     import {getArticleService, getCircleArticleCountService} from '@/service/homeService';
     import {formateDate} from "@/utils"
     import {ArticleInterface} from '@/types'
@@ -44,23 +49,42 @@
         name: 'Home',
         components: {},
         async setup() {
-            const pageNum = ref<number>(1);
+            let pageNum:number = 1;
+            const keyword = ref<string>("");
+            const articleView:Ref<HTMLElement | null> = ref(null);
+            const articeList:Ref<HTMLElement | null> = ref(null);
             const listData = reactive<Array<ArticleInterface>>([]);
-            const list: any = await getArticleService(pageNum.value);
-            // listData.push(...res);
-            const queue = list.map((item: any) => {
-                return getCircleArticleCountService(item.id)
-            });
-            Promise.all(queue).then((res: any) => {
-                const result = list.map((item: any, index: number) => {
-                    item.commentCount = res[index].commentCount;
-                    item.favoriteCount = res[index].favoriteCount;
-                    item.viewCount = res[index].viewCount;
-                    return item;
+            const totalRows = ref<number>(0);
+
+            const useGetArticleList = async () => {
+                const result: any = await getArticleService(pageNum,keyword.value);
+                const queue = result.data.map((item: any) => {
+                    return getCircleArticleCountService(item.id)
                 });
-                listData.push(...result);
-            });
-            return {pageNum, listData, formateDate};
+                totalRows.value = result.total;
+                Promise.all(queue).then((res: any) => {
+                    const list = result.data.map((item: any, index: number) => {
+                        item.commentCount = res[index].commentCount;
+                        item.favoriteCount = res[index].favoriteCount;
+                        item.viewCount = res[index].viewCount;
+                        return item;
+                    });
+                    listData.push(...list);
+                });
+            };
+
+            const useScroll = ()=>{
+                const articleViewEle:HTMLElement = articleView.value as HTMLElement;
+                const articeListEle:HTMLElement = articeList.value as HTMLElement;
+                if(articleViewEle.scrollTop >= articeListEle.offsetHeight - articleViewEle.offsetHeight && totalRows.value > listData.length){
+                    pageNum++;
+                    useGetArticleList();
+                }
+            };
+
+            useGetArticleList();
+
+            return {pageNum, listData, formateDate,useScroll,articleView,articeList,totalRows};
         }
     })
 </script>
@@ -102,65 +126,78 @@
             }
         }
 
-        .article-wrapper {
-            margin-top: @box-padding;
-            border-radius: @box-border-radius;
-            background: @module-bg-color;
-            padding: @box-padding;
-            box-sizing: border-box;
+        #article-view{
+            flex: 1;
+            overflow: auto;
+            #artice-list{
+                .article-wrapper {
+                    margin-top: @box-padding;
+                    border-radius: @box-border-radius;
+                    background: @module-bg-color;
+                    padding: @box-padding;
+                    box-sizing: border-box;
 
-            .article-header {
-                display: flex;
+                    .article-header {
+                        display: flex;
 
-                .avater {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                }
+                        .avater {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                        }
 
-                .username-wrapper {
-                    padding-left: @small-margin;
-                    justify-content: space-between;
-                    display: flex;
-                    flex-direction: column;
+                        .username-wrapper {
+                            padding-left: @small-margin;
+                            justify-content: space-between;
+                            display: flex;
+                            flex-direction: column;
 
-                    .username {
-                        font-size: @main-fontsize;
+                            .username {
+                                font-size: @main-fontsize;
+                            }
+
+                            .time {
+                                color: @tip-color;
+                            }
+                        }
                     }
 
-                    .time {
-                        color: @tip-color;
+                    .content {
+                        padding-top: @small-margin;
+                        color: @main-color;
+                    }
+
+                    .footer-wrapper {
+                        display: flex;
+                        padding-top: @small-margin;
+
+                        .footer-item {
+                            flex: 1;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+
+                            .iconfont {
+                                font-size: @icon-fontsize;
+                            }
+
+                            .count {
+                                font-size: @normal-fontsize;
+                                padding-left: @small-margin;
+                                color: @sub-color;
+                            }
+                        }
                     }
                 }
             }
-
-            .content {
-                padding-top: @small-margin;
-                color: @main-color;
-            }
-
-            .footer-wrapper {
-                display: flex;
-                padding-top: @small-margin;
-
-                .footer-item {
-                    flex: 1;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-
-                    .iconfont {
-                        font-size: @icon-fontsize;
-                    }
-
-                    .count {
-                        font-size: @normal-fontsize;
-                        padding-left: @small-margin;
-                        color: @sub-color;
-                    }
-                }
+            #loading{
+                color: #ddd;
+                text-align: center;
+                padding: 10px;
             }
         }
+
+
     }
 
 </style>
