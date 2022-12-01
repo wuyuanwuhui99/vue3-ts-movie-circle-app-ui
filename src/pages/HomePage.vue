@@ -98,7 +98,7 @@
         height: 100%;
 
         #search-wrapper {
-            border-radius: @box-border-radius;
+            border-radius: @search-btn-border-radius;
             background: @module-bg-color;
             padding: @box-padding;
             box-sizing: border-box;
@@ -109,7 +109,7 @@
                 flex: 1;
                 display: flex;
                 background: #efefef;
-                border-radius: @btn-border-radius;
+                border-radius: @search-btn-border-radius;
                 padding: @btn-padding;
                 margin-right: @btn-padding;
 

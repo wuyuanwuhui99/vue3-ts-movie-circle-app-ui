@@ -6,6 +6,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'Home',
         meta: {keepAlive: true},
         component: () => import('../pages/HomePage.vue')
+    },
+    {
+        path: '/say',
+        name: 'Say',
+        meta: {keepAlive: true},
+        component: () => import('../pages/SayPage.vue')
     }
 ];
 
