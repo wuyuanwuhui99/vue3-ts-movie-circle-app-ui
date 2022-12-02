@@ -5,7 +5,7 @@
                 <span class="iconfont icon-search"></span>
                 <input id="search-input"/>
             </div>
-            <span class="iconfont icon-add"></span>
+            <span class="iconfont icon-add" @click="goRouter"></span>
         </div>
         <div id="article-view" ref="articleView" @scroll="useScroll">
             <ul id="artice-list" ref="articeList">
@@ -44,11 +44,13 @@
     import {getArticleService, getCircleArticleCountService} from '@/service/homeService';
     import {formateDate} from "@/utils"
     import {ArticleInterface} from '@/types'
+    import {useRouter} from "vue-router";
 
     export default defineComponent({
-        name: 'Home',
+        name: 'HomePage',
         components: {},
         async setup() {
+            const router = useRouter();
             let pageNum:number = 1;
             const keyword = ref<string>("");
             const articleView:Ref<HTMLElement | null> = ref(null);
@@ -56,6 +58,11 @@
             const listData = reactive<Array<ArticleInterface>>([]);
             const totalRows = ref<number>(0);
 
+            /**
+             * @author: wuwenqiang
+             * @description: 获取列表数据，并加载浏览量评论量
+             * @date: 2022-12-02 21:25
+             */
             const useGetArticleList = async () => {
                 const result: any = await getArticleService(pageNum,keyword.value);
                 const queue = result.data.map((item: any) => {
@@ -73,6 +80,11 @@
                 });
             };
 
+            /**
+             * @author: wuwenqiang
+             * @description: 上拉加载更多
+             * @date: 2022-12-02 21:25
+             */
             const useScroll = ()=>{
                 const articleViewEle:HTMLElement = articleView.value as HTMLElement;
                 const articeListEle:HTMLElement = articeList.value as HTMLElement;
@@ -82,9 +94,18 @@
                 }
             };
 
+            /**
+             * @author: wuwenqiang
+             * @description: 跳转到说说页面
+             * @date: 2022-12-02 21:28
+             */
+            const goRouter = ()=>{
+                router.push({name: 'Say',});
+            };
+
             useGetArticleList();
 
-            return {pageNum, listData, formateDate,useScroll,articleView,articeList,totalRows};
+            return {pageNum, listData, formateDate,useScroll,articleView,articeList,totalRows,goRouter};
         }
     })
 </script>

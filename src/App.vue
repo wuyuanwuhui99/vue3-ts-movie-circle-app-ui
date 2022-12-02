@@ -2,9 +2,9 @@
     <Suspense>
         <router-view #default="{Component}" v-if="isLogin">
             <keep-alive>
-                <component :is="Component" v-if="$route.meta.keepAlive" />
+                <component :is="Component" :key="$route.name" v-if="$route.meta.keepAlive" />
             </keep-alive>
-            <component :is="Component" v-if="!$route.meta.keepAlive" />
+            <component :is="Component" :key="$route.name" v-if="!$route.meta.keepAlive" />
         </router-view>
     </Suspense>
 </template>
@@ -33,7 +33,6 @@
         font-family: Avenir, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        height: 100%;
         background: @page-bg-color;
         padding: @box-padding;
         box-sizing: border-box;
