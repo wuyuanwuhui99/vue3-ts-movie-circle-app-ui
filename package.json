@@ -10,7 +10,7 @@
   "dependencies": {
     "ansi-regex": "^6.0.0",
     "axios": "^0.21.1",
-    "better-scroll": "^2.4.1",
+    "better-scroll": "^2.5.0",
     "fork-ts-checker-webpack-plugin-v5": "^0.0.1-security",
     "lib-flexible": "^0.3.2",
     "mitt": "^3.0.0",

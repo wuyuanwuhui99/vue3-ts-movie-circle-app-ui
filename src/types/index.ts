@@ -15,15 +15,23 @@ export interface UserDataInterface {
 
 export interface ArticleInterface {
     id: number,
-    type: string,
-    content: string,
-    userId: string,
+    type: string,// 类型，电影/音乐
+    content: string,// 评论类型
+    userId: string,// 用户id
     createDate: string,
     updateDate: string,
-    commentCount: number,
-    favoriteCount: number,
-    viewCount: number
+    commentCount: number,// 评论数量
+    favoriteCount: number,// 收藏数量
+    viewCount: number// 浏览量
 }
 
-
-
+export interface HotCommentMovieInterface {
+    id: number,
+    movieName: string,// 影片名称
+    href: string,// 影片地址
+    label: string,// 影片标签 HD/已更新到xx集
+    createDate: string,
+    updateDate: string,
+    sourceUrl: string,// 影片来源地址
+    rank: number// 影片排名
+}

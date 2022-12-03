@@ -36,12 +36,9 @@
                 <span>热门影评</span>
             </div>
             <div id="swipper-wrapper">
-                <ul id="swipper-list">
-                    <li class="swipper-items">
-                        <div class="swipper-item">独行月球</div>
-                        <div class="swipper-item">明日战记</div>
-                        <div class="swipper-item">扫黑行动</div>
-                        <div class="swipper-item">流浪地球2</div>
+                <ul id="swipper-list" :style="{width:100 * hotCommentMovie.length + '%'}">
+                    <li class="swipper-items" :key="'swipper-items'+index" v-for="items,index in hotCommentMovie" :style="{width:100/hotCommentMovie.length+'%'}">
+                        <div class="swipper-item" :key="'swipper-item'+index+idx" v-for="item,idx in items">{{item.movieName}}</div>
                     </li>
                 </ul>
             </div>
@@ -50,44 +47,82 @@
         <div class="say-section">
             <div class="say-title">
                 <span class="line"></span>
-                <span>热门榜单</span>
+                <span>最近更新</span>
             </div>
-            <ul id="hot-wrapper">
-                <li class="hot-item">
-                    <span class="hot-main-title">1.世间有她</span>
-                    <span class="hot-sub-title">——周迅许娣婆媳互斗</span>
-                </li>
-                <li class="hot-item">
-                    <span class="hot-main-title">2.独行月球</span>
-                    <span class="hot-sub-title">——沈腾马丽爆笑出击</span>
-                </li>
-                <li class="hot-item">
-                    <span class="hot-main-title">3.长津湖之水门桥</span>
-                    <span class="hot-sub-title">——吴京千玺热血开战</span>
-                </li>
-                <li class="hot-item">
-                    <span class="hot-main-title">4.新蝙蝠侠</span>
-                    <span class="hot-sub-title">——黑暗骑士重磅回归</span>
-                </li>
-            </ul>
+            <div id="last-modify-wrapper">
+                <div id="last-modify-list" :style="{width:100*lastModifyMovie.length + '%'}">
+                    <ul v-for="items,index in lastModifyMovie" :key="'hot-wrapper'+index" :style="{width:100/lastModifyMovie.length + '%'}" class="hot-wrapper">
+                        <li class="hot-item" v-for="item,idx in items" :key="'hot-item'+index+idx">
+                            <span class="hot-main-title">{{item.rank}}.{{item.movieName}}</span>
+                            <span class="hot-sub-title">{{item.label}}</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </template>
 
 <script lang="ts">
     import {defineComponent,onMounted,ref,Ref} from 'vue';
+    import {getHotCommentMovieService,getLastModifyMovieService} from '@/service/sayService';
+    import {HotCommentMovieInterface} from '@/types';
     export default defineComponent({
         name: 'SayPage',
         setup(){
-            const imageWidth = ref<number>(0);
+            const imageWidth:Ref<number> = ref<number>(0);
             const addImgBtn:Ref<HTMLElement | null> = ref(null);
+            const hotCommentMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
+            const lastModifyMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
 
             onMounted(()=>{
                 const addImgBtnEle = addImgBtn.value as HTMLElement;
                 imageWidth.value = addImgBtnEle.offsetWidth;
             });
 
-            return {addImgBtn,imageWidth}
+            let items:Array<HotCommentMovieInterface> = [];
+
+            /**
+             * @author: wuwenqiang
+             * @description: 获取热门影评
+             * @date: 2022-12-03 16:51
+             */
+            getHotCommentMovieService().then((res:any)=>{
+                res.forEach((item:any)=>{
+                    if(items.length < 4){
+                        items.push(item);
+                        if(items.length === 4){
+                            hotCommentMovie.value.push(items);
+                        }
+                    }else{
+                        items = [];
+                        items.push(item);
+                    }
+                });
+            });
+
+            /**
+             * @author: wuwenqiang
+             * @description: 获取最近更新的电影
+             * @date: 2022-12-03 16:51
+             */
+            getLastModifyMovieService().then((res:any)=>{
+                const classify:Array<string> = [];
+                res.forEach((rItem:any)=>{
+                    let items:Array<HotCommentMovieInterface> = lastModifyMovie.value.find((cItem)=>{
+                        cItem  = cItem as Array<HotCommentMovieInterface>;
+                       return cItem[0].classify === rItem.classify;
+                    });
+                    if(!items){
+                        items = [];
+                        lastModifyMovie.value.push(items)
+                    }
+                    items.push(rItem);
+                })
+            });
+            return {addImgBtn,imageWidth,hotCommentMovie,lastModifyMovie}
         }
     })
 </script>
@@ -183,6 +218,7 @@
                 }
             }
             #swipper-wrapper{
+                overflow: hidden;
                 #swipper-list{
                     display: flex;
                     flex-wrap: nowrap;
@@ -192,7 +228,10 @@
                         flex-wrap: wrap;
                         .swipper-item{
                             width: calc((100% - @box-padding)/2);
-                            padding: @box-padding;
+                            padding-left: @box-padding;
+                            height: 50px;
+                            display: flex;
+                            align-items: center;
                             box-sizing: border-box;
                             background: @page-bg-color;
                             margin-top: @box-padding;
@@ -204,15 +243,24 @@
                     }
                 }
             }
-            #hot-wrapper{
-                .hot-item{
-                    padding-top: @box-padding;
-                    .hot-sub-title{
-                        padding-left: @min-margin;
-                        color:@sub-color
+            #last-modify-wrapper{
+                overflow: hidden;
+                #last-modify-list{
+                    display: flex;
+                    flex-wrap: nowrap;
+                    .hot-wrapper{
+                        .hot-item{
+                            padding-top: @box-padding;
+                            .hot-sub-title{
+                                padding-left: @min-margin;
+                                color:@sub-color
+                            }
+                        }
                     }
                 }
+
             }
+
         }
     }
 </style>
