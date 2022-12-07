@@ -35,11 +35,16 @@
                 <span class="line"></span>
                 <span>热门影评</span>
             </div>
-            <div id="swipper-wrapper">
-                <ul id="swipper-list" :style="{width:100 * hotCommentMovie.length + '%'}">
-                    <li class="swipper-items" :key="'swipper-items'+index" v-for="items,index in hotCommentMovie" :style="{width:100/hotCommentMovie.length+'%'}">
-                        <div class="swipper-item" :key="'swipper-item'+index+idx" v-for="item,idx in items">{{item.movieName}}</div>
-                    </li>
+            <div class="scroll-wrapper">
+                <div id="swipper-wrapper" ref="swipperWrapper">
+                    <ul id="swipper-list" :style="{width:100 * hotCommentMovie.length + '%'}">
+                        <li class="swipper-items" :key="'swipper-items'+index" v-for="items,index in hotCommentMovie" :style="{width:100/hotCommentMovie.length+'%'}">
+                            <div class="swipper-item" :key="'swipper-item'+index+idx" v-for="item,idx in items">{{item.movieName}}</div>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="dots">
+                    <li :key="'dot'+index" :class="{active:index === activeHotIndex}" v-for="item,index in hotCommentMovie" class="dot"></li>
                 </ul>
             </div>
         </div>
@@ -49,37 +54,51 @@
                 <span class="line"></span>
                 <span>最近更新</span>
             </div>
-            <div id="last-modify-wrapper">
-                <div id="last-modify-list" :style="{width:100*lastModifyMovie.length + '%'}">
-                    <ul v-for="items,index in lastModifyMovie" :key="'hot-wrapper'+index" :style="{width:100/lastModifyMovie.length + '%'}" class="hot-wrapper">
-                        <li class="hot-item" v-for="item,idx in items" :key="'hot-item'+index+idx">
-                            <span class="hot-main-title">{{item.rank}}.{{item.movieName}}</span>
-                            <span class="hot-sub-title">{{item.label}}</span>
-                        </li>
-                    </ul>
+            <div class="scroll-wrapper">
+                <div id="last-modify-wrapper" ref="lastModifyWrapper">
+                    <div id="last-modify-list" :style="{width:100*lastModifyMovie.length + '%'}">
+                        <ul v-for="items,index in lastModifyMovie" :key="'hot-wrapper'+index" :style="{width:100/lastModifyMovie.length + '%'}" class="hot-wrapper">
+                            <li class="hot-item" v-for="item,idx in items" :key="'hot-item'+index+idx">
+                                <span class="hot-main-title">{{item.rank}}.{{item.movieName}}</span>
+                                <span class="hot-sub-title">{{item.label}}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-
+                <ul class="dots">
+                    <li :key="'dot'+index" :class="{active:index === activeLastModifyIndex}" v-for="item,index in lastModifyMovie" class="dot"></li>
+                </ul>
             </div>
-
         </div>
     </div>
 </template>
 
 <script lang="ts">
-    import {defineComponent,onMounted,ref,Ref} from 'vue';
+    import {defineComponent,onMounted,ref,Ref,onUnmounted} from 'vue';
     import {getHotCommentMovieService,getLastModifyMovieService} from '@/service/sayService';
     import {HotCommentMovieInterface} from '@/types';
+    import BScroll from 'better-scroll';
     export default defineComponent({
         name: 'SayPage',
         setup(){
             const imageWidth:Ref<number> = ref<number>(0);
+            const activeHotIndex:Ref<number> = ref<number>(0);
+            const activeLastModifyIndex:Ref<number> = ref<number>(0);
             const addImgBtn:Ref<HTMLElement | null> = ref(null);
+            const swipperWrapper:Ref<HTMLElement|null> = ref(null);
+            const lastModifyWrapper:Ref<HTMLElement|null> = ref(null);
             const hotCommentMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
             const lastModifyMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
+            let hotBs:BScroll,lastModifyBs:BScroll;
 
             onMounted(()=>{
                 const addImgBtnEle = addImgBtn.value as HTMLElement;
                 imageWidth.value = addImgBtnEle.offsetWidth;
+            });
+
+            onUnmounted(()=>{
+                hotBs.destroy();
+                lastModifyBs.destroy();
             });
 
             let items:Array<HotCommentMovieInterface> = [];
@@ -101,6 +120,16 @@
                         items.push(item);
                     }
                 });
+
+                setTimeout(()=>{
+                    hotBs = new BScroll(swipperWrapper.value as HTMLElement,{
+                        scrollX:true,
+                        scrollY:false,
+                        click:true,
+                        probeType:3,
+                        snap: true
+                    })
+                },1000)
             });
 
             /**
@@ -109,7 +138,6 @@
              * @date: 2022-12-03 16:51
              */
             getLastModifyMovieService().then((res:any)=>{
-                const classify:Array<string> = [];
                 res.forEach((rItem:any)=>{
                     let items:Array<HotCommentMovieInterface> = lastModifyMovie.value.find((cItem)=>{
                         cItem  = cItem as Array<HotCommentMovieInterface>;
@@ -120,9 +148,27 @@
                         lastModifyMovie.value.push(items)
                     }
                     items.push(rItem);
-                })
+                });
+                setTimeout(()=>{
+                    lastModifyBs = new BScroll(lastModifyWrapper.value as HTMLElement,{
+                        scrollX:true,
+                        scrollY:false,
+                        click:true,
+                        probeType:3,
+                        snap: true
+                    })
+                },1000)
             });
-            return {addImgBtn,imageWidth,hotCommentMovie,lastModifyMovie}
+            return {
+                addImgBtn,
+                imageWidth,
+                hotCommentMovie,
+                lastModifyMovie,
+                swipperWrapper,
+                lastModifyWrapper,
+                activeHotIndex,
+                activeLastModifyIndex
+            }
         }
     })
 </script>
@@ -217,50 +263,73 @@
                     margin-right:@min-margin;
                 }
             }
-            #swipper-wrapper{
-                overflow: hidden;
-                #swipper-list{
-                    display: flex;
-                    flex-wrap: nowrap;
-                    .swipper-items{
-                        width: 100%;
+            .scroll-wrapper{
+                position: relative;
+                #swipper-wrapper{
+                    overflow: hidden;
+                    position: relative;
+                    #swipper-list{
                         display: flex;
-                        flex-wrap: wrap;
-                        .swipper-item{
-                            width: calc((100% - @box-padding)/2);
-                            padding-left: @box-padding;
-                            height: 50px;
+                        flex-wrap: nowrap;
+                        .swipper-items{
+                            width: 100%;
                             display: flex;
-                            align-items: center;
-                            box-sizing: border-box;
-                            background: @page-bg-color;
-                            margin-top: @box-padding;
-                            border-radius: @normal-btn-border-radius;
-                            &:nth-child(2n){
-                                margin-left: @box-padding;
+                            flex-wrap: wrap;
+                            .swipper-item{
+                                width: calc((100% - @box-padding)/2);
+                                padding-left: @box-padding;
+                                height: 50px;
+                                display: flex;
+                                align-items: center;
+                                box-sizing: border-box;
+                                background: @page-bg-color;
+                                margin-top: @box-padding;
+                                border-radius: @normal-btn-border-radius;
+                                &:nth-child(2n){
+                                    margin-left: @box-padding;
+                                }
                             }
                         }
                     }
                 }
-            }
-            #last-modify-wrapper{
-                overflow: hidden;
-                #last-modify-list{
+                #last-modify-wrapper{
+                    overflow: hidden;
+                    #last-modify-list{
+                        display: flex;
+                        flex-wrap: nowrap;
+                        .hot-wrapper{
+                            .hot-item{
+                                padding-top: @box-padding;
+                                .hot-sub-title{
+                                    padding-left: @min-margin;
+                                    color:@sub-color
+                                }
+                            }
+                        }
+                    }
+
+                }
+                .dots{
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%);
                     display: flex;
-                    flex-wrap: nowrap;
-                    .hot-wrapper{
-                        .hot-item{
-                            padding-top: @box-padding;
-                            .hot-sub-title{
-                                padding-left: @min-margin;
-                                color:@sub-color
-                            }
+                    bottom: -@small-margin;
+                    .dot{
+                        border-radius: 3px;
+                        width: 12px;
+                        height: 4px;
+                        background: @page-bg-color;
+                        margin-left: 3px;
+                        &:first-child{
+                            margin-left: 0;
+                        }
+                        &.active{
+                            background: @active-color;
                         }
                     }
                 }
-
             }
-
         }
     }
 </style>
