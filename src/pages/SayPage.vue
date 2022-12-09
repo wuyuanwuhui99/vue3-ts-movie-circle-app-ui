@@ -37,8 +37,8 @@
             </div>
             <div class="scroll-wrapper">
                 <div id="swipper-wrapper" ref="swipperWrapper">
-                    <ul id="swipper-list" :style="{width:100 * hotCommentMovie.length + '%'}">
-                        <li class="swipper-items" :key="'swipper-items'+index" v-for="items,index in hotCommentMovie" :style="{width:100/hotCommentMovie.length+'%'}">
+                    <ul id="swipper-list" :style="{width:100 * (hotCommentMovie.length+2) + '%'}">
+                        <li class="swipper-items" :key="'swipper-items'+index" v-for="items,index in hotCommentMovie" :style="{width:100/(hotCommentMovie.length+2)+'%'}">
                             <div class="swipper-item" :key="'swipper-item'+index+idx" v-for="item,idx in items">{{item.movieName}}</div>
                         </li>
                     </ul>
@@ -56,8 +56,8 @@
             </div>
             <div class="scroll-wrapper">
                 <div id="last-modify-wrapper" ref="lastModifyWrapper">
-                    <div id="last-modify-list" :style="{width:100*lastModifyMovie.length + '%'}">
-                        <ul v-for="items,index in lastModifyMovie" :key="'hot-wrapper'+index" :style="{width:100/lastModifyMovie.length + '%'}" class="hot-wrapper">
+                    <div id="last-modify-list" :style="{width:100*(lastModifyMovie.length + 2) + '%'}">
+                        <ul v-for="items,index in lastModifyMovie" :key="'hot-wrapper'+index" :style="{width:100/(lastModifyMovie.length+2) + '%'}" class="hot-wrapper">
                             <li class="hot-item" v-for="item,idx in items" :key="'hot-item'+index+idx">
                                 <span class="hot-main-title">{{item.rank}}.{{item.movieName}}</span>
                                 <span class="hot-sub-title">{{item.label}}</span>
@@ -127,8 +127,13 @@
                         scrollY:false,
                         click:true,
                         probeType:3,
-                        snap: true
-                    })
+                        slide: {
+                            loop:true,
+                        }
+                    });
+                    hotBs.on("scrollEnd",()=>{
+                        activeHotIndex.value = hotBs.getCurrentPage().pageX;
+                    });
                 },1000)
             });
 
@@ -155,8 +160,13 @@
                         scrollY:false,
                         click:true,
                         probeType:3,
-                        snap: true
-                    })
+                        slide: {
+                            loop:true,
+                        }
+                    });
+                    lastModifyBs.on("scrollEnd",()=>{
+                        activeLastModifyIndex.value = hotBs.getCurrentPage().pageX;
+                    });
                 },1000)
             });
             return {
