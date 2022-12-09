@@ -3,12 +3,16 @@
         <div class="say-section">
             <div id="say-header">
                 <div id="cancle">取消</div>
-                <div id="send" class="disabled-send">发布</div>
+                <div id="send" :class="!content && checkedImgList.length === 0 ? 'disabled-send': ''">发布</div>
             </div>
-            <textarea placeholder="这一刻的想法..." id="say-textarea"></textarea>
+            <textarea v-model="content" placeholder="这一刻的想法..." id="say-textarea"></textarea>
             <ul id="say-img-wrapper">
-               <li :style="{height:imageWidth+'px'}" class="img-item" ref="addImgBtn" id="add-img-btn">+</li>
+                <li class="img-item" v-for="item,index in checkedImgList" :key="'img-item'+index" :style="{width:imageWidth+'px',height:imageWidth+'px'}">
+                   <img class="img" :src="item"/>
+                </li>
+                <li @click="checkedFile" v-if="checkedImgList.length < 9" :style="{width:imageWidth + 'px',height: imageWidth + 'px'}" class="img-item" ref="addImgBtn" id="add-img-btn">+</li>
             </ul>
+            <input @change="getFilePath" type="file" id="file-input" multiple="multiple" accept="image/*" ref="fileInput"/>
         </div>
 
         <ul class="say-section type-section">
@@ -81,19 +85,23 @@
     export default defineComponent({
         name: 'SayPage',
         setup(){
+            const content:Ref<string> = ref<string>('');
             const imageWidth:Ref<number> = ref<number>(0);
             const activeHotIndex:Ref<number> = ref<number>(0);
             const activeLastModifyIndex:Ref<number> = ref<number>(0);
+            const fileInput:Ref<HTMLElement | null> = ref(null)
             const addImgBtn:Ref<HTMLElement | null> = ref(null);
             const swipperWrapper:Ref<HTMLElement|null> = ref(null);
             const lastModifyWrapper:Ref<HTMLElement|null> = ref(null);
+            const checkedImgList:Ref<Array<string>> = ref([]);
             const hotCommentMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
             const lastModifyMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
             let hotBs:BScroll,lastModifyBs:BScroll;
 
+
             onMounted(()=>{
                 const addImgBtnEle = addImgBtn.value as HTMLElement;
-                imageWidth.value = addImgBtnEle.offsetWidth;
+                imageWidth.value = (addImgBtnEle.parentNode.offsetWidth - parseInt(getComputedStyle(addImgBtnEle).marginRight) * 2)/3;
             });
 
             onUnmounted(()=>{
@@ -169,6 +177,30 @@
                     });
                 },1000)
             });
+
+            /**
+             * @author: wuwenqiang
+             * @description: 获取最近更新的电影
+             * @date: 2022-12-09 22:28
+             */
+            const checkedFile = ()=>{
+                const fileInputEle:HTMLElement = fileInput.value as HTMLElement;
+                fileInputEle.click()
+            };
+
+            const getFilePath = ()=>{
+                const fileInputEle:HTMLElement = fileInput.value as HTMLElement;
+                for(let i=0;i<fileInputEle.files.length;i++){
+                    var fr = new FileReader(); //H5新特性
+                    fr.onload = (e)=>{
+                        if(checkedImgList.value.length < 9){
+                            checkedImgList.value.push(e.target.result)
+                        }
+                    };
+                    fr.readAsDataURL(fileInputEle.files[i]);
+                }
+
+            };
             return {
                 addImgBtn,
                 imageWidth,
@@ -176,8 +208,13 @@
                 lastModifyMovie,
                 swipperWrapper,
                 lastModifyWrapper,
+                fileInput,
+                checkedImgList,
                 activeHotIndex,
-                activeLastModifyIndex
+                activeLastModifyIndex,
+                checkedFile,
+                getFilePath,
+                content
             }
         }
     })
@@ -230,22 +267,35 @@
                 padding: @box-padding;
                 box-sizing: border-box;
                 overflow: auto;
+                &:focus{
+                    border:1px solid @active-color;
+                    border-radius: @big-border-radius;
+                    outline: none;
+                }
             }
             #say-img-wrapper{
                 display: flex;
                 flex-wrap: wrap;
-                margin-top: @box-padding;
                 .img-item{
-                    width: calc((100% - @small-margin*2)/3);
+                    &:nth-child(3n){
+                        margin-right: 0;
+                    }
+                    border-radius: @big-border-radius;
+                    margin-right: @small-margin;
+                    margin-top: @small-margin;
+                    overflow: hidden;
                     &#add-img-btn{
                         background: @page-bg-color;
                         height: 100px;
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        border-radius: @big-border-radius;
                         font-size: 50px;
                         color: @disabled-color;
+                    }
+                    .img{
+                        width: 100%;
+                        height:100%
                     }
                 }
             }
@@ -339,6 +389,9 @@
                         }
                     }
                 }
+            }
+            #file-input{
+                display: none;
             }
         }
     }
