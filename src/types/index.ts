@@ -17,6 +17,7 @@ export interface ArticleInterface {
     id: number,
     type: string,// 类型，电影/音乐
     content: string,// 评论类型
+    imgs: string,// 图片
     userId: string,// 用户id
     createDate: string,
     updateDate: string,
@@ -34,4 +35,9 @@ export interface HotCommentMovieInterface {
     updateDate: string,
     sourceUrl: string,// 影片来源地址
     rank: number// 影片排名
+}
+
+export interface SayInterface {
+    content: string,
+    imgs: Array<string>,// 影片名称
 }

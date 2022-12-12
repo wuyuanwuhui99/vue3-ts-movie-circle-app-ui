@@ -10,7 +10,6 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/say',
         name: 'Say',
-        meta: {keepAlive: true},
         component: () => import('../pages/SayPage.vue')
     }
 ];

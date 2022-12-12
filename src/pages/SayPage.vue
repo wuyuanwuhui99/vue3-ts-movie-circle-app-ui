@@ -3,7 +3,7 @@
         <div class="say-section">
             <div id="say-header">
                 <div id="cancle">取消</div>
-                <div id="send" :class="!content && checkedImgList.length === 0 ? 'disabled-send': ''">发布</div>
+                <div id="send" @click="onSend" :class="!content && checkedImgList.length === 0 ? 'disabled-send': ''">发布</div>
             </div>
             <textarea v-model="content" placeholder="这一刻的想法..." id="say-textarea"></textarea>
             <ul id="say-img-wrapper">
@@ -79,9 +79,12 @@
 
 <script lang="ts">
     import {defineComponent,onMounted,ref,Ref,onUnmounted} from 'vue';
-    import {getHotCommentMovieService,getLastModifyMovieService} from '@/service/sayService';
-    import {HotCommentMovieInterface} from '@/types';
+    import {getHotCommentMovieService, getLastModifyMovieService, saveSayService} from '@/service/sayService';
+    import {HotCommentMovieInterface, SayInterface} from '@/types';
     import BScroll from 'better-scroll';
+    import router from '@/router'
+    import emitter from "../utils/emitter";
+
     export default defineComponent({
         name: 'SayPage',
         setup(){
@@ -199,8 +202,22 @@
                     };
                     fr.readAsDataURL(fileInputEle.files[i]);
                 }
-
             };
+
+            const onSend = ()=>{
+                if(!content.value && checkedImgList.value.length === 0)return;
+                const params:SayInterface = {
+                    content:content.value,
+                    imgs:checkedImgList.value
+                };
+                saveSayService(params).then((res:any)=>{
+                    if(res> 0){
+                        emitter.$emit("refresh");
+                        router.back();
+                    }
+                });
+            };
+
             return {
                 addImgBtn,
                 imageWidth,
@@ -214,7 +231,8 @@
                 activeLastModifyIndex,
                 checkedFile,
                 getFilePath,
-                content
+                content,
+                onSend
             }
         }
     })

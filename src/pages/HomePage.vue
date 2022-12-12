@@ -17,7 +17,7 @@
                             <span class="time">{{formateDate(item.createTime)}}</span>
                         </div>
                     </div>
-                    <div class="content">{{item.content}}</div>=k
+                    <div class="content">{{item.content}}</div>
                     <ul class="footer-wrapper">
                         <li class="footer-item">
                             <i class="iconfont icon-view"></i>
@@ -40,11 +40,12 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, ref, reactive,Ref} from 'vue';
+    import {defineComponent, ref, reactive,Ref,onMounted} from 'vue';
     import {getArticleService, getCircleArticleCountService} from '@/service/homeService';
     import {formateDate} from "@/utils"
     import {ArticleInterface} from '@/types'
     import {useRouter} from "vue-router";
+    import emitter from "../utils/emitter";
 
     export default defineComponent({
         name: 'HomePage',
@@ -55,7 +56,7 @@
             const keyword = ref<string>("");
             const articleView:Ref<HTMLElement | null> = ref(null);
             const articeList:Ref<HTMLElement | null> = ref(null);
-            const listData = reactive<Array<ArticleInterface>>([]);
+            let listData = reactive<Array<ArticleInterface>>([]);
             const totalRows = ref<number>(0);
 
             /**
@@ -102,6 +103,14 @@
             const goRouter = ()=>{
                 router.push({name: 'Say',});
             };
+
+            onMounted(()=>{
+                emitter.$on("refresh",()=>{
+                    pageNum = 1;
+                    listData.splice(0,listData.length)
+                    useGetArticleList();
+                });
+            });
 
             useGetArticleList();
 
