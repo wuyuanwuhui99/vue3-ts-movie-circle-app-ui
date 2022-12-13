@@ -18,6 +18,12 @@
                         </div>
                     </div>
                     <div class="content">{{item.content}}</div>
+                    <ul class="imgs-wrapper" v-if="item.imgs">
+                        <li class="img-item">
+                            <img :src="img" v-for="img,idx in item.imgs" :key="'img'+index+idx">
+                        </li>
+
+                    </ul>
                     <ul class="footer-wrapper">
                         <li class="footer-item">
                             <i class="iconfont icon-view"></i>
@@ -75,6 +81,7 @@
                         item.commentCount = res[index].commentCount;
                         item.favoriteCount = res[index].favoriteCount;
                         item.viewCount = res[index].viewCount;
+                        if(item.imgs)item.imgs = item.imgs.split(";");
                         return item;
                     });
                     listData.push(...list);
@@ -196,7 +203,23 @@
                         padding-top: @small-margin;
                         color: @main-color;
                     }
-
+                    .imgs-wrapper{
+                        display: flex;
+                        flex-wrap: wrap;
+                        .img-item{
+                            margin-top: @small-margin;
+                            margin-right: @small-margin;
+                            width: calc((100% - @small-margin*2)/3);
+                            height: auto;
+                            &:nth-child(3n){
+                                margin-right: 0;
+                            }
+                            img{
+                                width: 100%;
+                                height: auto;
+                            }
+                        }
+                    }
                     .footer-wrapper {
                         display: flex;
                         padding-top: @small-margin;

@@ -8,7 +8,7 @@
             <textarea v-model="content" placeholder="这一刻的想法..." id="say-textarea"></textarea>
             <ul id="say-img-wrapper">
                 <li class="img-item" v-for="item,index in checkedImgList" :key="'img-item'+index" :style="{width:imageWidth+'px',height:imageWidth+'px'}">
-                   <img class="img" :src="item"/>
+                   <img class="img" ref="imgRef" :src="item"/>
                 </li>
                 <li @click="checkedFile" v-if="checkedImgList.length < 9" :style="{width:imageWidth + 'px',height: imageWidth + 'px'}" class="img-item" ref="addImgBtn" id="add-img-btn">+</li>
             </ul>
@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent,onMounted,ref,Ref,onUnmounted} from 'vue';
+    import {defineComponent,onMounted,ref,Ref,onUnmounted,nextTick,reactive} from 'vue';
     import {getHotCommentMovieService, getLastModifyMovieService, saveSayService} from '@/service/sayService';
     import {HotCommentMovieInterface, SayInterface} from '@/types';
     import BScroll from 'better-scroll';
@@ -96,6 +96,7 @@
             const addImgBtn:Ref<HTMLElement | null> = ref(null);
             const swipperWrapper:Ref<HTMLElement|null> = ref(null);
             const lastModifyWrapper:Ref<HTMLElement|null> = ref(null);
+            const imgRef:Ref<HTMLElement|null> = ref(null);
             const checkedImgList:Ref<Array<string>> = ref([]);
             const hotCommentMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
             const lastModifyMovie:Ref<Array<Array<HotCommentMovieInterface>>> = ref([]);// 二维数组
@@ -195,15 +196,30 @@
                 const fileInputEle:HTMLElement = fileInput.value as HTMLElement;
                 for(let i=0;i<fileInputEle.files.length;i++){
                     var fr = new FileReader(); //H5新特性
-                    fr.onload = (e)=>{
+                    fr.onload = (e:Event)=>{
                         if(checkedImgList.value.length < 9){
                             checkedImgList.value.push(e.target.result)
+                            nextTick(()=>{
+                                const imgEle = imgRef.value as HTMLElement;
+                                if(imgEle.offsetWidth > imgEle.offsetHeight){
+                                    imgEle.style.width = "100%";
+                                    imgEle.style.height = 'auto';
+                                }else{
+                                    imgEle.style.height = "100%";
+                                    imgEle.style.width = 'auto';
+                                }
+                            });
                         }
                     };
                     fr.readAsDataURL(fileInputEle.files[i]);
                 }
             };
 
+            /**
+             * @author: wuwenqiang
+             * @description: 点击发送按钮
+             * @date: 2022-12-13 21:59
+             */
             const onSend = ()=>{
                 if(!content.value && checkedImgList.value.length === 0)return;
                 const params:SayInterface = {
@@ -232,7 +248,8 @@
                 checkedFile,
                 getFilePath,
                 content,
-                onSend
+                onSend,
+                imgRef
             }
         }
     })
@@ -295,6 +312,9 @@
                 display: flex;
                 flex-wrap: wrap;
                 .img-item{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                     &:nth-child(3n){
                         margin-right: 0;
                     }
@@ -310,10 +330,6 @@
                         align-items: center;
                         font-size: 50px;
                         color: @disabled-color;
-                    }
-                    .img{
-                        width: 100%;
-                        height:100%
                     }
                 }
             }
