@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, ref, reactive,Ref,onMounted} from 'vue';
+    import {defineComponent, ref, reactive,Ref,onMounted,nextTick} from 'vue';
     import {getArticleService, getCircleArticleCountService} from '@/service/homeService';
     import {formateDate} from "@/utils"
     import {ArticleInterface} from '@/types'
@@ -85,6 +85,13 @@
                         return item;
                     });
                     listData.push(...list);
+                    nextTick(()=>{
+                        const articeListEle:HTMLElement = articeList.value as HTMLElement;
+                        const imgItem:NodeListOf<HTMLElement> = articeListEle.querySelectorAll(".img-item");
+                        imgItem.forEach((item:HTMLElement)=>{
+                            item.style.height = item.offsetWidth * 9 / 16 + 'px'
+                        })
+                    })
                 });
             };
 
@@ -114,12 +121,13 @@
             onMounted(()=>{
                 emitter.$on("refresh",()=>{
                     pageNum = 1;
-                    listData.splice(0,listData.length)
+                    listData.splice(0,listData.length);
                     useGetArticleList();
                 });
             });
 
             useGetArticleList();
+
 
             return {pageNum, listData, formateDate,useScroll,articleView,articeList,totalRows,goRouter};
         }
@@ -210,7 +218,9 @@
                             margin-top: @small-margin;
                             margin-right: @small-margin;
                             width: calc((100% - @small-margin*2)/3);
-                            height: auto;
+                            overflow: hidden;
+                            display: flex;
+                            align-items: center;
                             &:nth-child(3n){
                                 margin-right: 0;
                             }

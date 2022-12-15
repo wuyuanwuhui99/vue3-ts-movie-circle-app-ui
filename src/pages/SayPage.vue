@@ -193,7 +193,7 @@
             };
 
             const getFilePath = ()=>{
-                const fileInputEle:HTMLElement = fileInput.value as HTMLElement;
+                const fileInputEle:HTMLInputElement = fileInput.value as HTMLInputElement;
                 for(let i=0;i<fileInputEle.files.length;i++){
                     var fr = new FileReader(); //H5新特性
                     fr.onload = (e:Event)=>{

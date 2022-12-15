@@ -12,11 +12,13 @@
 <script lang="ts">
     import {defineComponent,ref} from 'vue';
     import {getUserDataService} from "./service/appService";
+    import {useRoute,RouteLocationNormalizedLoaded} from "vue-router";
     export default defineComponent({
         setup () {
             const isLogin = ref<boolean>(false);
-
-            getUserDataService().then(() => {
+            const route:RouteLocationNormalizedLoaded = useRoute();
+            const {token=""} = route.query;
+            getUserDataService(token).then(() => {
                 isLogin.value = true;
             });
 
