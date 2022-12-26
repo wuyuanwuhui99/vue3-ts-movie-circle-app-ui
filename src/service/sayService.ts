@@ -1,21 +1,20 @@
-import axios, {AxiosResponse} from "axios";
 import api from "../api";
-import {HotCommentMovieInterface, SayInterface} from "@/types";
-
+import {SayInterface} from "@/types";
+import {request} from '@/utils';
 export const getHotCommentMovieService = async () => {
-    return axios.get(api.getHotCommentMovie)
-        .then((res: AxiosResponse<Array<HotCommentMovieInterface>>) => res.data)
+    return request(api.getHotCommentMovie,{method:"get"})
+        .then((res:any) => res.data)
         .catch();
 };
 
 export const getLastModifyMovieService = async () => {
-    return axios.get(api.getLastModifyMovie)
-        .then((res: AxiosResponse<Array<HotCommentMovieInterface>>) => res.data)
+    return request(api.getLastModifyMovie,{method:"get"})
+        .then((res:any) => res.data)
         .catch();
 };
 
 export const saveSayService = async (data:SayInterface) => {
-    return axios.post(api.saveSay,data)
-        .then((res: AxiosResponse<Array<HotCommentMovieInterface>>) => res.data)
+    return request(api.saveSay,{headers:"get",body:JSON.stringify(data)})
+        .then((res: any) => res.data)
         .catch();
 };

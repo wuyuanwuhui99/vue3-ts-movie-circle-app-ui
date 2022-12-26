@@ -104,7 +104,7 @@
 
 
             onMounted(()=>{
-                const addImgBtnEle = addImgBtn.value as HTMLElement;
+                const addImgBtnEle:any = addImgBtn.value as HTMLElement;
                 imageWidth.value = (addImgBtnEle.parentNode.offsetWidth - parseInt(getComputedStyle(addImgBtnEle).marginRight) * 2)/3;
             });
 
@@ -156,7 +156,7 @@
              */
             getLastModifyMovieService().then((res:any)=>{
                 res.forEach((rItem:any)=>{
-                    let items:Array<HotCommentMovieInterface> = lastModifyMovie.value.find((cItem)=>{
+                    let items:any = lastModifyMovie.value.find((cItem:any)=>{
                         cItem  = cItem as Array<HotCommentMovieInterface>;
                        return cItem[0].classify === rItem.classify;
                     });
@@ -193,10 +193,10 @@
             };
 
             const getFilePath = ()=>{
-                const fileInputEle:HTMLInputElement = fileInput.value as HTMLInputElement;
+                const fileInputEle:any = fileInput.value as HTMLInputElement;
                 for(let i=0;i<fileInputEle.files.length;i++){
                     var fr = new FileReader(); //H5新特性
-                    fr.onload = (e:Event)=>{
+                    fr.onload = (e:any)=>{
                         if(checkedImgList.value.length < 9){
                             checkedImgList.value.push(e.target.result)
                             nextTick(()=>{

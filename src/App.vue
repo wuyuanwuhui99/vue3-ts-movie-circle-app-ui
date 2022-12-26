@@ -14,10 +14,10 @@
     import {getUserDataService} from "./service/appService";
     import {useRoute,RouteLocationNormalizedLoaded} from "vue-router";
     export default defineComponent({
-        setup () {
+        setup: function () {
             const isLogin = ref<boolean>(false);
-            const route:RouteLocationNormalizedLoaded = useRoute();
-            const {token=""} = route.query;
+            const route: RouteLocationNormalizedLoaded = useRoute();
+            const {token} = route.query;
             getUserDataService(token).then(() => {
                 isLogin.value = true;
             });

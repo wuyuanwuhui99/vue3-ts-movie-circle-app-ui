@@ -1,16 +1,14 @@
-import axios, {AxiosResponse} from "axios";
 import api from "../api";
-import {ArticleInterface} from "@/types";
 import {pageSize} from "@/constant";
-
+import {request} from '@/utils';
 export const getArticleService = async (pageNum:number,keyword:string) => {
-    return axios.get(`${api.getCircleArticleList}?pageSize=${pageSize}&pageNum=${pageNum}&keyword=${keyword}&type=movie`)
-        .then((res: AxiosResponse<ArticleInterface>) => res)
+    return request(`${api.getCircleArticleList}?pageSize=${pageSize}&pageNum=${pageNum}&keyword=${keyword}&type=movie`,{method:"get"})
+        .then((res:any) => res)
         .catch();
 };
 
 export const getCircleArticleCountService = async (id:number) => {
-    return axios.get(`${api.getCircleArticleCount}?id=${id}`)
-        .then((res: AxiosResponse<ArticleInterface>) => res.data)
+    return request(`${api.getCircleArticleCount}?id=${id}`,{method:"get"})
+        .then((res:any)=> res)
         .catch();
 };
