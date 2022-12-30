@@ -12,7 +12,6 @@
                 </li>
                 <li @click="checkedFile" v-if="checkedImgList.length < 9" :style="{width:imageWidth + 'px',height: imageWidth + 'px'}" class="img-item" ref="addImgBtn" id="add-img-btn">+</li>
             </ul>
-            <input @change="getFilePath" type="file" id="file-input" multiple="multiple" accept="image/*" ref="fileInput"/>
         </div>
 
         <ul class="say-section type-section">
@@ -84,7 +83,7 @@
     import BScroll from 'better-scroll';
     import router from '@/router'
     import emitter from "../utils/emitter";
-
+    import {chooseImages} from "../utils/plug";
     export default defineComponent({
         name: 'SayPage',
         setup(){
@@ -92,7 +91,6 @@
             const imageWidth:Ref<number> = ref<number>(0);
             const activeHotIndex:Ref<number> = ref<number>(0);
             const activeLastModifyIndex:Ref<number> = ref<number>(0);
-            const fileInput:Ref<HTMLElement | null> = ref(null)
             const addImgBtn:Ref<HTMLElement | null> = ref(null);
             const swipperWrapper:Ref<HTMLElement|null> = ref(null);
             const lastModifyWrapper:Ref<HTMLElement|null> = ref(null);
@@ -188,31 +186,9 @@
              * @date: 2022-12-09 22:28
              */
             const checkedFile = ()=>{
-                const fileInputEle:HTMLElement = fileInput.value as HTMLElement;
-                fileInputEle.click()
-            };
-
-            const getFilePath = ()=>{
-                const fileInputEle:any = fileInput.value as HTMLInputElement;
-                for(let i=0;i<fileInputEle.files.length;i++){
-                    var fr = new FileReader(); //H5新特性
-                    fr.onload = (e:any)=>{
-                        if(checkedImgList.value.length < 9){
-                            checkedImgList.value.push(e.target.result)
-                            nextTick(()=>{
-                                const imgEle = imgRef.value as HTMLElement;
-                                if(imgEle.offsetWidth > imgEle.offsetHeight){
-                                    imgEle.style.width = "100%";
-                                    imgEle.style.height = 'auto';
-                                }else{
-                                    imgEle.style.height = "100%";
-                                    imgEle.style.width = 'auto';
-                                }
-                            });
-                        }
-                    };
-                    fr.readAsDataURL(fileInputEle.files[i]);
-                }
+                chooseImages((data:string)=>{
+                    checkedImgList.value.push(data)
+                })
             };
 
             /**
@@ -241,12 +217,10 @@
                 lastModifyMovie,
                 swipperWrapper,
                 lastModifyWrapper,
-                fileInput,
                 checkedImgList,
                 activeHotIndex,
                 activeLastModifyIndex,
                 checkedFile,
-                getFilePath,
                 content,
                 onSend,
                 imgRef
@@ -423,9 +397,6 @@
                         }
                     }
                 }
-            }
-            #file-input{
-                display: none;
             }
         }
     }
