@@ -11,17 +11,20 @@
 
 <script lang="ts">
     import {defineComponent,ref} from 'vue';
-    import {getUserDataService} from "./service/appService";
     import {useRoute,RouteLocationNormalizedLoaded} from "vue-router";
+    import {useStore} from 'vuex'
+    import {USER_DATA,TOKEN} from "@/store/mutation-types";
     export default defineComponent({
         setup: function () {
             const isLogin = ref<boolean>(false);
             const route: RouteLocationNormalizedLoaded = useRoute();
             const {token} = route.query;
-            getUserDataService(token).then(() => {
-                isLogin.value = true;
-            });
-
+            // @ts-ignore
+            const userData = window.plug.getUserData();
+            const store = useStore();
+            store.dispatch(USER_DATA, JSON.parse(userData));
+            store.dispatch(TOKEN,token);
+            isLogin.value = true;
             return {
                 isLogin
             }
