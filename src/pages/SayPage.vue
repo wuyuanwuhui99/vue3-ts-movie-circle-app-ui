@@ -83,7 +83,7 @@
     import BScroll from 'better-scroll';
     import router from '@/router'
     import emitter from "../utils/emitter";
-    import {chooseImages} from "../utils/plug";
+    import {chooseImages} from "@/utils/plug";
     export default defineComponent({
         name: 'SayPage',
         setup(){
@@ -187,7 +187,7 @@
              */
             const checkedFile = ()=>{
                 chooseImages((data:string)=>{
-                    checkedImgList.value.push(data)
+                    checkedImgList.value.push("data:image/jpeg;base64,"+data)
                 })
             };
 

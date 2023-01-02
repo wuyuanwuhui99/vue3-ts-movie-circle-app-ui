@@ -20,7 +20,7 @@
             const route: RouteLocationNormalizedLoaded = useRoute();
             const {token} = route.query;
             // @ts-ignore
-            const userData = window.plug.getUserData();
+            const userData = window.plug.getUserData();// 调用安卓原生方法获取用户信息
             const store = useStore();
             store.dispatch(USER_DATA, JSON.parse(userData));
             store.dispatch(TOKEN,token);
