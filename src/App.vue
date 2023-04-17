@@ -11,16 +11,15 @@
 
 <script lang="ts">
     import {defineComponent,ref} from 'vue';
-    import {useRoute,RouteLocationNormalizedLoaded} from "vue-router";
     import {useStore} from 'vuex'
     import {USER_DATA,TOKEN} from "@/store/mutation-types";
     export default defineComponent({
         setup: function () {
             const isLogin = ref<boolean>(false);
-            const route: RouteLocationNormalizedLoaded = useRoute();
-            const {token} = route.query;
             // @ts-ignore
-            const userData = window.plug.getUserData();// 调用安卓原生方法获取用户信息
+            const {token} = plus.getToken();
+            // @ts-ignore
+            const userData = plus.getUserData();// 调用安卓原生方法获取用户信息
             const store = useStore();
             store.dispatch(USER_DATA, JSON.parse(userData));
             store.dispatch(TOKEN,token);

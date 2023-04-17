@@ -1,6 +1,6 @@
 export const  chooseImages = (callback:Function)=>{
     // @ts-ignore
-    window.plug.chooseImages();
+    window.plus.chooseImages();
     // @ts-ignore
     window.plug.chooseImagesCallback = callback;
 }
